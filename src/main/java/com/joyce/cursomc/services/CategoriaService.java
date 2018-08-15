@@ -3,10 +3,12 @@ package com.joyce.cursomc.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.joyce.cursomc.domain.Categoria;
 import com.joyce.cursomc.repositories.CategoriaRepository;
+import com.joyce.cursomc.services.exceptions.DataIntegrityException;
 
 import javassist.tools.rmi.ObjectNotFoundException;
 
@@ -30,5 +32,14 @@ public class CategoriaService {
 	public Categoria update(Categoria obj) throws ObjectNotFoundException {
 		find(obj.getId());
 		return repo.save(obj);
+	}
+
+	public void delete(Integer id) throws ObjectNotFoundException {
+		find(id);
+		try {
+			repo.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException("Não é possível excluir uma categoria que possui produtos");
+		}
 	}
 }

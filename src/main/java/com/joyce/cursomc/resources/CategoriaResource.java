@@ -35,13 +35,18 @@ public class CategoriaResource {
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
-	
-	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Categoria> update(@RequestBody Categoria obj, @PathVariable Integer id) throws ObjectNotFoundException{
-		
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<Categoria> update(@RequestBody Categoria obj, @PathVariable Integer id)
+			throws ObjectNotFoundException {
 		obj.setId(id);
 		obj = service.update(obj);
-		
+		return ResponseEntity.noContent().build();
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Void> delete(@PathVariable Integer id) throws ObjectNotFoundException {
+		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 }
