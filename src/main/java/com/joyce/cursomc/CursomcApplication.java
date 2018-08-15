@@ -13,6 +13,7 @@ import com.joyce.cursomc.domain.Cidade;
 import com.joyce.cursomc.domain.Cliente;
 import com.joyce.cursomc.domain.Endereco;
 import com.joyce.cursomc.domain.Estado;
+import com.joyce.cursomc.domain.ItemPedido;
 import com.joyce.cursomc.domain.Pagamento;
 import com.joyce.cursomc.domain.PagamentoComBoleto;
 import com.joyce.cursomc.domain.PagamentoComCartao;
@@ -25,6 +26,7 @@ import com.joyce.cursomc.repositories.CidadeRepository;
 import com.joyce.cursomc.repositories.ClienteRepository;
 import com.joyce.cursomc.repositories.EnderecoRepository;
 import com.joyce.cursomc.repositories.EstadoRepository;
+import com.joyce.cursomc.repositories.ItemPedidoRepository;
 import com.joyce.cursomc.repositories.PagamentoRepository;
 import com.joyce.cursomc.repositories.PedidoRepository;
 import com.joyce.cursomc.repositories.ProdutoRepository;
@@ -48,6 +50,8 @@ public class CursomcApplication implements CommandLineRunner {
 	private PagamentoRepository pagamentoRepository;
 	@Autowired
 	private PedidoRepository pedidoRepository;
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(CursomcApplication.class, args);
@@ -100,6 +104,17 @@ public class CursomcApplication implements CommandLineRunner {
 		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
 		ped2.setPagamento(pagto2);
 		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.0, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.0, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.0, 1, 800.00);
+		
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
+		ped2.getItens().addAll(Arrays.asList(ip3));
+		
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
+		
 
 		categoriaRepository.saveAll(Arrays.asList(cat1, cat2));
 		produtoRepository.saveAll(Arrays.asList(p1, p2, p3));
@@ -110,5 +125,7 @@ public class CursomcApplication implements CommandLineRunner {
 		
 		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+		
+		itemPedidoRepository.saveAll(Arrays.asList(ip1, ip2, ip3));
 	}
 }
