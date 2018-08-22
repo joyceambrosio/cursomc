@@ -10,9 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.joyce.cursomc.domain.Cidade;
 import com.joyce.cursomc.domain.Cliente;
+import com.joyce.cursomc.domain.Endereco;
+import com.joyce.cursomc.domain.enums.TipoCliente;
 import com.joyce.cursomc.dto.ClienteDTO;
+import com.joyce.cursomc.dto.ClienteNewDTO;
 import com.joyce.cursomc.repositories.ClienteRepository;
+import com.joyce.cursomc.repositories.EnderecoRepository;
 import com.joyce.cursomc.services.exceptions.DataIntegrityException;
 
 import javassist.tools.rmi.ObjectNotFoundException;
@@ -22,12 +27,25 @@ public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
+	
+	@Autowired 
+	private EnderecoRepository enderecoRepository;
 
 	public Cliente find(Integer id) throws ObjectNotFoundException {
 		Optional<Cliente> obj = repo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado: " + id + ", Tipo:" + Cliente.class.getName()));
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
+				"Objeto não encontrado: " + id + ", Tipo:" + Cliente.class.getName()));
 	}
+
+	public Cliente insert(Cliente obj) {
+		obj.setId(null); // garantir que o obj a ser inserido não é um update
+		obj = repo.save(obj);
+		enderecoRepository.saveAll(obj.getEnderecos());
+		return obj;
+		
 	
+	}
+
 	public Cliente update(Cliente obj) throws ObjectNotFoundException {
 		Cliente newObj = find(obj.getId());
 		updateData(newObj, obj);
@@ -52,10 +70,26 @@ public class ClienteService {
 		return repo.findAll(pageRequest);
 	}
 
+	public Cliente fromDTO(ClienteNewDTO objDto) {
+		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()));
+		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
+		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), objDto.getBairro(), objDto.getCep(), cid, cli);
+		cli.getEnderecos().add(end);
+		cli.getTelefones().add(objDto.getTelefone1());
+		if (objDto.getTelefone2()!=null) {
+			cli.getTelefones().add(objDto.getTelefone2());
+		}
+		if (objDto.getTelefone3()!=null) {
+			cli.getTelefones().add(objDto.getTelefone3());
+		}
+		return cli;
+
+	}
+
 	public Cliente fromDTO(ClienteDTO objDTO) {
 		return new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), null, null);
 	}
-	
+
 	private void updateData(Cliente newObj, Cliente obj) {
 		newObj.setNome(obj.getNome());
 		newObj.setEmail(obj.getEmail());
