@@ -37,7 +37,7 @@ public class Cliente implements Serializable {
 	// o cliente pode serializar os endereços mas o contrário não pode ser feito
 	// para evitar serialização cíclica
 
-	@OneToMany(mappedBy = "cliente", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
 	private List<Endereco> enderecos = new ArrayList<>();
 
 	@ElementCollection

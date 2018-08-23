@@ -21,7 +21,7 @@ public class ProdutoService {
 
 	@Autowired
 	private ProdutoRepository repo;
-	
+
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 
@@ -35,9 +35,10 @@ public class ProdutoService {
 			String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		List<Categoria> categorias = categoriaRepository.findAllById(ids);
-		
-		return repo.search(nome, categorias, pageRequest);
 
+		return repo.findDistinctByNomeContainingAndCategoriasIn(nome, categorias, pageRequest);
 	}
+	
+	
 
 }
